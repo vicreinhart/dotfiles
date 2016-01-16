@@ -1,0 +1,97 @@
+#!/bin/bash
+#-------------------------------------------------------------------------------
+# Color management
+#-------------------------------------------------------------------------------
+echo "Operating system: " ${OSTYPE}
+export TERM=xterm-256color
+if [[ $OSTYPE =~ "darwin" ]]; then
+    export CLICOLOR=1
+    export LSCOLORS=GxFxBxDxCxegedabagacad
+    alias me='source ~/.bash_profile'
+    alias la='ls -A'
+    alias ll='ls -lahG'
+    alias vim='mvim -v'
+    function colortest() {
+      source ~/git/dotfiles/color/base16-shell/base16-$1.dark.sh
+    }
+    export PATH="$HOME/Library/Haskell/bin:$PATH"
+elif [[ $OSTYPE =~ "linux" ]]; then
+    export TERM=xterm
+    source ~/git/dotfiles/color/base16-shell/base16-atelierdune.dark.sh
+    alias me='source ~/.bashrc'
+    alias la='ls -A --color'
+    alias ll='ls -lahG --color'
+else
+    echo "Unknown operating system:" ${OSTYPE}
+fi
+#-------------------------------------------------------------------------------
+# Use vim keybinds
+#-------------------------------------------------------------------------------
+#set -o vi
+
+#-------------------------------------------------------------------------------
+# Personal aliases
+#-------------------------------------------------------------------------------
+# General
+alias ci='cabal install'
+alias cif='cabal install --force-reinstalls'
+alias cls='clear'
+alias ct='cd ~/git/dotfiles/color/base16-shell && ./colortest && cd -'
+alias dot='cd ~/git/dotfiles/'
+# Grep.
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias grep='grep --color=auto'
+#------------------------------------------------------------------------------- 
+# File & String related functions
+#------------------------------------------------------------------------------- 
+function ff()  { find . -type f -iname "$1" -print ; }
+function ffr() { find . -name "$1" -exec bash -c 'rm -rf' \;; } 
+#-------------------------------------------------------------------------------
+# Use vim to read man pages.
+#-------------------------------------------------------------------------------k
+function man() { vim -c "Man $1 $2" -c 'silent only' ; }
+#-------------------------------------------------------------------------------k
+# Use asciidoctor to create a pdf document.
+#-------------------------------------------------------------------------------k
+function apdf() {
+  f=$(basename "$1")
+  f="${f%.*}"
+  time asciidoctor --trace --require asciidoctor-pdf \
+              --backend pdf \
+              --attribute pdf-style=$HOME/git/dotfiles/asciidoctor/basic-theme.yml \
+              --out-file pdf/"$f".pdf \
+              "$1" ;
+}
+#-------------------------------------------------------------------------------
+# Git helpers
+#-------------------------------------------------------------------------------
+function gce() {
+  if [[ "mhp" = $1 ]]; then
+    git config --local user.name vreinhart
+    git config --local user.email vreinhart@mhealthpharma.com
+  elif [[ "vicreinhart" = $1 ]]; then
+    git config --local user.name vicreinhart
+    git config --local user.email victor@maintstar.com
+  else
+    echo "Usage: gce [mhp|vicreinhart]"
+    echo "Found: " $1
+  fi
+  git config --local --get user.name
+  git config --local --get user.email
+}
+#-------------------------------------------------------------------------------
+# Prompt
+#-------------------------------------------------------------------------------
+export PS1='\[\033[01;31m\]\u\[\033[00m\]\[\033[01;33m\]@\[\033[00m\]\[\033[01;34m\]\h\[\033[00m\]\[\033[01;32m\]:\[\033[00m\]\[\033[01;35m\]\w\[\033[00m\]\[\033[01;36m\]\n\$\[\033[00m\] '
+
+#----------------------------------------------------------------------
+# Disable features / programs running on OSX.
+#----------------------------------------------------------------------
+function msa() { Launchctl remove com.microsoft.SyncServicesAgent ; }
+function pah() { defaults write -g ApplePressAndHoldEnable -bool false ; }
+
+#----------------------------------------------------------------------
+# Set terminal title.
+#----------------------------------------------------------------------
+function title() { echo -n -e "\033]0;$1\007"; }

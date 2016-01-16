@@ -1,0 +1,9 @@
+# contents of $HOME/.ssh/config 
+Host * 
+  ServerAliveInterval 300 
+  IdentityFile ~/.ssh/github_rsa 
+#   
+# GitHub settings 
+Host github.com 
+  User vicreinhart
+
